@@ -16,3 +16,5 @@ org
 http
 trinitum
 perl
+RedisDB
+redis
