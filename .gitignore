@@ -14,3 +14,6 @@ pod2htm*.tmp
 MYMETA.*
 nytprof*
 RedisDB-Parser-*
+Parser.c
+Parser.o
+parser.o
