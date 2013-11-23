@@ -3,8 +3,8 @@ use strict;
 use warnings;
 
 use Benchmark qw(cmpthese);
-use RedisDB::Parse::Redis_XS;
-use RedisDB::Parse::Redis_PP;
+use RedisDB::Parser::XS;
+use RedisDB::Parser::PP;
 use Protocol::Redis;
 use Protocol::Redis::XS;
 use Redis::Parser::XS;
@@ -30,16 +30,16 @@ my $reply = join "\r\n", qw(
   ), "";
 
 my $true = sub { 1 };
-my $rdb_pp = RedisDB::Parse::Redis_PP->new;
+my $rdb_pp = RedisDB::Parser::PP->new;
 $rdb_pp->set_default_callback($true);
-my $rdb_xs = RedisDB::Parse::Redis_XS->new;
+my $rdb_xs = RedisDB::Parser::XS->new;
 $rdb_xs->set_default_callback($true);
 
 my $rdb_parsed = [ 123, undef, 'hhhhhhhhh' ];
-$rdb_pp->add_callback( sub { eq_or_die( $_[1], $rdb_parsed, "RedisDB PP" ) } );
-$rdb_pp->add($reply);
-$rdb_xs->add_callback( sub { eq_or_die( $_[1], $rdb_parsed, "RedisDB XS" ) } );
-$rdb_xs->add($reply);
+$rdb_pp->push_callback( sub { eq_or_die( $_[1], $rdb_parsed, "RedisDB PP" ) } );
+$rdb_pp->parse($reply);
+$rdb_xs->push_callback( sub { eq_or_die( $_[1], $rdb_parsed, "RedisDB XS" ) } );
+$rdb_xs->parse($reply);
 
 my $pr_pp = Protocol::Redis->new( api => 1 );
 my $pr_xs = Protocol::Redis::XS->new( api => 1 );
@@ -95,11 +95,11 @@ for (@replies) {
     say "\nParsing $test\n";
     cmpthese - 5,
       {
-        "RedisDB PP"               => sub { $rdb_pp->add($reply)  for 1 .. 10000 },
-        "RedisDB XS"               => sub { $rdb_xs->add($reply)  for 1 .. 10000 },
-        "Protocol::Redis"          => sub { $pr_pp->parse($reply) for 1 .. 10000 },
-        "Protocol::Redis::XS"      => sub { $pr_xs->parse($reply) for 1 .. 10000 },
-        "wrapped Parse::Redis::XS" => sub { redis_parser($reply)  for 1 .. 10000 },
+        "RedisDB::Parser::PP"      => sub { $rdb_pp->parse($reply) for 1 .. 10000 },
+        "RedisDB::Parser::XS"      => sub { $rdb_xs->parse($reply) for 1 .. 10000 },
+        "Protocol::Redis"          => sub { $pr_pp->parse($reply)  for 1 .. 10000 },
+        "Protocol::Redis::XS"      => sub { $pr_xs->parse($reply)  for 1 .. 10000 },
+        "wrapped Parse::Redis::XS" => sub { redis_parser($reply)   for 1 .. 10000 },
         "bare Parse::Redis::XS" => sub { parse_redis $reply, \my @res for 1 .. 10000 },
       };
 }
