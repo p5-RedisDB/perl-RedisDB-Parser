@@ -41,6 +41,7 @@ WriteMakefile(
         'Test::More' => 0.94,
         'Try::Tiny'  => 0,
         'Encode'     => 2.10,
+        'RedisDB'    => 2.18,
     },
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 6.3002,
@@ -61,7 +62,7 @@ WriteMakefile(
 
             license => 'http://dev.perl.org/licenses/',
         },
-        keywords       => ['redis'],
+        keywords       => [ 'redis', 'protocol', 'parser', ],
         x_contributors => [ 'Pavel Shaydo <zwon@cpan.org>', ],
     },
     CONFIGURE => sub {
