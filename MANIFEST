@@ -1,5 +1,6 @@
 Changes
 lib/RedisDB/Parser.pm
+lib/RedisDB/Parser/Error.pm
 lib/RedisDB/Parser/PP.pm
 lib/RedisDB/Parser/XS.pm
 Makefile.PL
