@@ -109,7 +109,7 @@ sub one_line_reply {
     @replies = ();
     $parser->parse("OK$lf");
     is @replies, 1, "Got a reply";
-    isa $replies[0], "Redis::Error";
+    isa_ok $replies[0], "RedisDB::Parser::Error", "Got an error object";
     eq_or_diff( "$replies[0]", "OK\015OK", "got an error reply with \\r in it" );
 }
 
@@ -216,7 +216,7 @@ sub transaction {
     is @replies, 1, 'Got a reply with error inside';
     my $reply = shift @replies;
     eq_or_diff $reply->[0], [], "  has empty list";
-    isa_ok $reply->[1], "RedisDB::Error", "  has error object";
+    isa_ok $reply->[1], "RedisDB::Parser::Error", "  has error object";
     is "$reply->[1]", "Oops", "  Oops";
     is $reply->[2], "OK", "  has OK";
 }
@@ -227,7 +227,7 @@ sub propagate_reply {
         $parser->push_callback( sub { push @replies, [ $var, "$_[1]" ] } );
     }
     $parser->set_default_callback( sub { push @replies, [ 0, "$_[1]" ] } );
-    $parser->propagate_reply( RedisDB::Error->new("Oops") );
+    $parser->propagate_reply( RedisDB::Parser::Error->new("Oops") );
     ok ! $parser->callbacks, "No callbacks in the queue";
     eq_or_diff [ sort { $a->[0] <=> $b->[0] } @replies ], [ map { [ $_, "Oops" ] } 0 .. 3 ], "All callbacks got the error";
 }

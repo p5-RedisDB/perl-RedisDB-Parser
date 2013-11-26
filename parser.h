@@ -13,6 +13,8 @@ struct redisdb_parser {
     AV* callbacks;
     SV* default_cb;
     SV* buffer;
+    SV* error_class;
+    SV* error_class_constructor;
     int state;
     int mblk_level;
     AV* mblk_reply;
@@ -33,7 +35,7 @@ typedef struct redisdb_parser RDB_parser;
 #define RDBP_READ_MBLK_LEN  6
 #define RDBP_WAIT_BUCKS     7
 
-RDB_parser* rdb_parser__init(SV *master, int utf8);
+RDB_parser* rdb_parser__init(SV *master, SV *eror_class, int utf8);
 void rdb_parser__free(RDB_parser *parser);
 int rdb_parser__parse_reply(RDB_parser *parser);
 void rdb_parser__propagate_reply(RDB_parser *parser, SV *reply);

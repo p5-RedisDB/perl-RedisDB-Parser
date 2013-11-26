@@ -8,7 +8,7 @@
 
 #include "parser.h"
 
-RDB_parser* rdb_parser__init(SV* master, int utf8) {
+RDB_parser* rdb_parser__init(SV* master, SV* error_class, int utf8) {
     RDB_parser *parser;
 
     Newx(parser, 1, RDB_parser);
@@ -31,6 +31,10 @@ RDB_parser* rdb_parser__init(SV* master, int utf8) {
     parser->buffer = newSVpvn("", 0);
     parser->state = RDBP_CLEAN;
 
+    parser->error_class = newSVsv(error_class);
+    parser->error_class_constructor = newSVsv(error_class);
+    sv_catpv(parser->error_class_constructor, "::new");
+
     return parser;
 }
 
@@ -39,6 +43,8 @@ void rdb_parser__free(RDB_parser *parser) {
 
     SvREFCNT_dec(parser->callbacks);
     SvREFCNT_dec(parser->buffer);
+    SvREFCNT_dec(parser->error_class);
+    SvREFCNT_dec(parser->error_class_constructor);
     if (parser->default_cb != NULL)
         SvREFCNT_dec(parser->default_cb);
     if (parser->mblk_reply != NULL)
@@ -161,10 +167,10 @@ long _read_length(SV *buffer) {
 }
 
 /*
- * creates RedisDB::Error object from the message
+ * creates RedisDB::Parser::Error object from the message
  */
 static
-SV* _create_rdb_error(SV *msg) {
+SV* _create_rdb_error(RDB_parser *parser, SV *msg) {
     int count;
     SV* err;
 
@@ -172,10 +178,10 @@ SV* _create_rdb_error(SV *msg) {
     ENTER;
     SAVETMPS;
     PUSHMARK(SP);
-    XPUSHs(sv_2mortal(newSVpv("RedisDB::Error", 0)));
+    XPUSHs(parser->error_class);
     XPUSHs(sv_2mortal(msg));
     PUTBACK;
-    count = call_pv("RedisDB::Error::new", G_SCALAR);
+    count = call_sv(parser->error_class_constructor, G_SCALAR);
     if (count != 1)
         croak("Expected single return value from new, but got many");
     SPAGAIN;
@@ -328,7 +334,7 @@ int rdb_parser__parse_reply(RDB_parser *parser) {
         else if (parser->state == RDBP_READ_ERROR) {
             line = _read_line(parser->buffer);
             if (line == NULL) return 0;
-            err = _create_rdb_error(line);
+            err = _create_rdb_error(parser, line);
             if (_reply_completed(parser, err)) return 1;
         }
         else if (parser->state == RDBP_READ_NUMBER) {

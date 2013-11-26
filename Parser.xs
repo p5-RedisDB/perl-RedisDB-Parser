@@ -11,11 +11,12 @@ MODULE = RedisDB::Parser    PACKAGE = RedisDB::Parser::XS    PREFIX = rdb_parser
 PROTOTYPES: DISABLE
 
 RDB_parser*
-rdb_parser__new(master, utf8)
+rdb_parser__new(master, error_class, utf8)
         SV* master;
+        SV* error_class;
         int utf8;
     CODE:
-        RETVAL = rdb_parser__init(master, utf8);
+        RETVAL = rdb_parser__init(master, error_class, utf8);
         RETVAL->thx = (IV)PERL_GET_THX;
     OUTPUT:
         RETVAL

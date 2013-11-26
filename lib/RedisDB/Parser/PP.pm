@@ -17,7 +17,7 @@ module directly. See details in L<RedisDB::Parser> documentation.
 =cut
 
 use Encode qw();
-use RedisDB::Error;
+use RedisDB::Parser::Error;
 use Carp;
 use Try::Tiny;
 use Scalar::Util qw(weaken);
@@ -25,11 +25,12 @@ use Scalar::Util qw(weaken);
 sub new {
     my ( $class, %params ) = @_;
     my $self = {
-        utf8        => $params{utf8},
-        master      => $params{master},
-        _default_cb => $params{default_callback},
-        _callbacks  => [],
-        _buffer     => '',
+        utf8         => $params{utf8},
+        master       => $params{master},
+        _error_class => $params{error_class} || "RedisDB::Parser::Error",
+        _default_cb  => $params{default_callback},
+        _callbacks   => [],
+        _buffer      => '',
     };
     weaken( $self->{master} );
     return bless $self, $class;
@@ -125,7 +126,7 @@ sub _parse_reply {
         }
         elsif ( $self->{_parse_state} == $READ_ERROR ) {
             return unless defined( my $line = $self->_read_line );
-            my $err = RedisDB::Error->new($line);
+            my $err = $self->{_error_class}->new($line);
             return 1 if $self->_reply_completed($err);
         }
         elsif ( $self->{_parse_state} == $READ_NUMBER ) {
