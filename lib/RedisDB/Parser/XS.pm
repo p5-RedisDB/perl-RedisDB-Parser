@@ -16,6 +16,7 @@ module directly. See details in L<RedisDB::Parser> documentation.
 
 =cut
 
+use RedisDB::Parser::Error;
 require XSLoader;
 XSLoader::load( "RedisDB::Parser", $XS_VERSION );
 
