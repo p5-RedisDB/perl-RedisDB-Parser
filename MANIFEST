@@ -12,6 +12,7 @@ ppport.h
 README
 README.pod
 t/00-load.t
+t/no-leak.t
 t/parser.t
 typemap
 util/parser_benchmark.pl
