@@ -1,4 +1,5 @@
 use Test::Most 0.22;
+use Test::FailWarnings;
 use utf8;
 
 use Try::Tiny;
