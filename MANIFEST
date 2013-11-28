@@ -14,6 +14,7 @@ README.pod
 t/00-load.t
 t/no-leak.t
 t/parser.t
+t/utf8.t
 typemap
 util/parser_benchmark.pl
 xt/manifest.t
