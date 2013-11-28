@@ -38,9 +38,13 @@ WriteMakefile(
     PL_FILES     => {},
     OBJECT       => "parser.o Parser.o",
     PREREQ_PM    => {
-        'Test::More' => 0.94,
-        'Try::Tiny'  => 0,
-        'Encode'     => 2.10,
+        'Try::Tiny' => 0,
+        'Encode'    => 2.10,
+    },
+    BUILD_REQUIRES => {
+        'Test::More'         => 0.94,
+        'Test::Most'         => 0.22,
+        'Test::FailWarnings' => 0,
     },
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 6.3002,
