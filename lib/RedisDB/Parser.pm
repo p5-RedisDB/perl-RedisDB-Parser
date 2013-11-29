@@ -120,17 +120,60 @@ passed two arguments: master value, and decoded reply from the server.
 
 =cut
 
+=head1 PARSING
+
+Here's how the parser represents replies from redis-server:
+
+=head2 Status reply
+
+Status replies are represented by string values witout the initial plus sign
+and final end of the line symbols. I.e. "+OK" reply from the server will be
+parsed into "OK" string that will be passed to callback.
+
+=head2 Error reply
+
+Error replies are representes as objects of I<error_class>, which is by default
+L<RedisDB::Parser::Error>. If parser detects error reply, it strips it off
+initial minus sign and final end of the line, and then passes result as sole
+argument to the I<new> method of the I<error_class>. This is the only case when
+parser produces blessed reference, and so callback may easily detect error
+condition by checking this.
+
+=head2 Integer reply
+
+Parser represents integer reply as a scalar value
+
+=head2 Bulk reply
+
+Parser represents bulk replies as scalar values. By default it treats result as
+a sequence of bytes, but if I<utf8> options is set it decodes result from UTF-8
+and may croak if result is not a valid UTF-8 sequence. NULL bulk reply is
+represented as undefined value.
+
+=head2 Multi-bulk reply
+
+Multi-bulk replies are returned as array references. Empty multi-bulk reply is
+represented as reference to empty array. Null multi-bulk reply is represented
+as undefined scalar.
+
+=cut
+
 1;
 
 __END__
 
 =head1 SEE ALSO
 
-L<RedisDB>, L<Protocol::Redis>, L<Protocol::Redis::XS>, L<Redis::Parser::XS>
+Redis protocol specification: L<http://redis.io/topics/protocol>
+
+Redis client library that uses this parser: L<RedisDB>
+
+Other Perl modules that parse redis protocol:
+L<Protocol::Redis>, L<Protocol::Redis::XS>, L<Redis::Parser::XS>
 
 =head1 AUTHOR
 
-Pavel Shaydo, C<< <zwon at cpan.org> >>
+Pavel Shaydo C<< <zwon at cpan.org> >>
 
 =head1 LICENSE AND COPYRIGHT
 
