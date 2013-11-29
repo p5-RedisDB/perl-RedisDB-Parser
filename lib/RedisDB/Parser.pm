@@ -126,7 +126,7 @@ __END__
 
 =head1 SEE ALSO
 
-L<RedisDB>
+L<RedisDB>, L<Protocol::Redis>, L<Protocol::Redis::XS>, L<Redis::Parser::XS>
 
 =head1 AUTHOR
 
