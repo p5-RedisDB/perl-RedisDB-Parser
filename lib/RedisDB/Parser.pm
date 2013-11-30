@@ -126,13 +126,13 @@ Here's how the parser represents replies from redis-server:
 
 =head2 Status reply
 
-Status replies are represented by string values witout the initial plus sign
+Status replies are represented by string values without the initial plus sign
 and final end of the line symbols. I.e. "+OK" reply from the server will be
 parsed into "OK" string that will be passed to callback.
 
 =head2 Error reply
 
-Error replies are representes as objects of I<error_class>, which is by default
+Error replies are represents as objects of I<error_class>, which is by default
 L<RedisDB::Parser::Error>. If parser detects error reply, it strips it off
 initial minus sign and final end of the line, and then passes result as sole
 argument to the I<new> method of the I<error_class>. This is the only case when
