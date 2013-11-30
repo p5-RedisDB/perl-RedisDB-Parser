@@ -1,3 +1,7 @@
+2.19_06 Sat Nov 30 2013 Pavel Shaydo <zwon@cpan.org>
+    - rename parser.[ch] into rdb_parser.[ch]
+    - improve documentation
+
 2.19_05 Fri Nov 29 2013 Pavel Shaydo <zwon@cpan.org>
     - use Test::FailWarnings
     - fix build dependencies in Makefile
