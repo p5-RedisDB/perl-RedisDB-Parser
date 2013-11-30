@@ -5,7 +5,7 @@
 
 #include "ppport.h"
 
-#include "parser.h"
+#include "rdb_parser.h"
 
 MODULE = RedisDB::Parser    PACKAGE = RedisDB::Parser::XS    PREFIX = rdb_parser_
 PROTOTYPES: DISABLE

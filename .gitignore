@@ -16,4 +16,4 @@ nytprof*
 RedisDB-Parser-*
 Parser.c
 Parser.o
-parser.o
+rdb_parser.o

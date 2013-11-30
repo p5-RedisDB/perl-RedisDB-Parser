@@ -6,7 +6,7 @@
 #define NEED_sv_2pv_flags
 #include "ppport.h"
 
-#include "parser.h"
+#include "rdb_parser.h"
 
 RDB_parser* rdb_parser__init(SV* master, SV* error_class, int utf8) {
     RDB_parser *parser;

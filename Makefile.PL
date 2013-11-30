@@ -36,7 +36,7 @@ WriteMakefile(
     ABSTRACT     => 'Redis protocol parser',
     LICENSE      => 'perl',
     PL_FILES     => {},
-    OBJECT       => "parser.o Parser.o",
+    OBJECT       => "rdb_parser.o Parser.o",
     PREREQ_PM    => {
         'Try::Tiny' => 0,
         'Encode'    => 2.10,
