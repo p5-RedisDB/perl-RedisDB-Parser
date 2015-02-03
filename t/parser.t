@@ -94,24 +94,32 @@ sub cb {
 
 sub one_line_reply {
     @replies = ();
-    $parser->push_callback( \&cb ) for 1 .. 3;
-    is $parser->callbacks, 3, "Three callbacks were added";
+    $parser->push_callback( \&cb ) for 1 .. 5;
+    is $parser->callbacks, 5, "Five callbacks were added";
     $parser->parse("+");
     is @replies, 0, "+";
     $parser->parse("OK");
     is @replies, 0, "+OK";
     $parser->parse("\015");
     is @replies, 0, "+OK\\r";
-    $parser->parse("\012+And here we have something long$lf-OK\015");
+    $parser->parse("\012+And here we have something long$lf-ERR");
     is @replies, 2, "Found 2 replies";
-    is $parser->callbacks, 1, "One callback left";
+    is $parser->callbacks, 3, "Three callbacks left";
     eq_or_diff \@replies, [ "OK", "And here we have something long" ],
       "OK, And here we have something long";
     @replies = ();
-    $parser->parse("OK$lf");
-    is @replies, 1, "Got a reply";
+    $parser->parse(" error$lf-MOVED 7777 127.0.0.2:3333$lf-ASK 8888 127.0.0.2:4444$lf");
+    is @replies, 3, "Got 3 replies";
     isa_ok $replies[0], "RedisDB::Parser::Error", "Got an error object";
-    eq_or_diff( "$replies[0]", "OK\015OK", "got an error reply with \\r in it" );
+    is $replies[0]{message}, 'ERR error', 'correct error message';
+    isa_ok $replies[1], "RedisDB::Parser::Error::MOVED", "Got an MOVED error object";
+    is $replies[1]{slot}, 7777,        'correct slot';
+    is $replies[1]{host}, '127.0.0.2', 'correct host';
+    is $replies[1]{port}, '3333',      'correct port';
+    isa_ok $replies[2], "RedisDB::Parser::Error::ASK", "Got an ASK error object";
+    is $replies[2]{slot}, 8888,        'correct slot';
+    is $replies[2]{host}, '127.0.0.2', 'correct host';
+    is $replies[2]{port}, '4444',      'correct port';
 }
 
 sub integer_reply {
@@ -176,12 +184,12 @@ sub nested_mb_reply {
           . "*3${lf}\$3${lf}set${lf}\$4${lf}test${lf}\$2${lf}43${lf}" );
     is @replies, 0, 'waits for the last chunk';
     $parser->parse(
-        "*4${lf}:3${lf}:1336734889${lf}:20${lf}" . "*2${lf}\$7${lf}slowlog${lf}\$3${lf}len${lf}" );
+        "*4${lf}:3${lf}:1336734889${lf}:20${lf}" . "*3${lf}\$7${lf}slowlog${lf}*2${lf}:1${lf}:2${lf}\$3${lf}len${lf}" );
     is @replies, 1, "Got a reply";
     my $exp = [
         [ 5, 1336734898, 43,  [ 'get',     'test' ], ],
         [ 4, 1336734895, 175, [ 'set',     'test', '43' ], ],
-        [ 3, 1336734889, 20,  [ 'slowlog', 'len' ], ],
+        [ 3, 1336734889, 20,  [ 'slowlog', [1, 2 ], 'len', ], ],
     ];
     eq_or_diff shift(@replies), $exp, 'got correct nested multi-bulk reply';
 }
@@ -213,12 +221,12 @@ sub transaction {
     is @replies, 1, 'Got a reply';
     eq_or_diff shift(@replies), [ [], 'OK', undef, [qw(aa bb)] ],
       "Parsed reply with empty list and undef";
-    $parser->parse("*3$lf*0$lf-Oops$lf+OK$lf");
+    $parser->parse("*3$lf*0$lf-ERR Oops$lf+OK$lf");
     is @replies, 1, 'Got a reply with error inside';
     my $reply = shift @replies;
     eq_or_diff $reply->[0], [], "  has empty list";
     isa_ok $reply->[1], "RedisDB::Parser::Error", "  has error object";
-    is "$reply->[1]", "Oops", "  Oops";
+    is "$reply->[1]", "ERR Oops", "ERR Oops";
     is $reply->[2], "OK", "  has OK";
 }
 
@@ -228,7 +236,7 @@ sub propagate_reply {
         $parser->push_callback( sub { push @replies, [ $var, "$_[1]" ] } );
     }
     $parser->set_default_callback( sub { push @replies, [ 0, "$_[1]" ] } );
-    $parser->propagate_reply( RedisDB::Parser::Error->new("Oops") );
+    $parser->propagate_reply( RedisDB::Parser::Error->new("ERR Oops") );
     ok ! $parser->callbacks, "No callbacks in the queue";
-    eq_or_diff [ sort { $a->[0] <=> $b->[0] } @replies ], [ map { [ $_, "Oops" ] } 0 .. 3 ], "All callbacks got the error";
+    eq_or_diff [ sort { $a->[0] <=> $b->[0] } @replies ], [ map { [ $_, "ERR Oops" ] } 0 .. 3 ], "All callbacks got the error";
 }
