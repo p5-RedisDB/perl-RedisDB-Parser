@@ -1,3 +1,7 @@
+2.21 Tue Feb 10 2015 Pavel Shaydo <zwon@cpan.org>
+    - create special error objects for MOVED and ASK redirections from
+    redis cluster
+
 2.20 Sun Dec  1 2013 Pavel Shaydo <zwon@cpan.org>
     - stable version, no code changes
 

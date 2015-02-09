@@ -2,7 +2,7 @@ package RedisDB::Parser::PP;
 
 use strict;
 use warnings;
-our $VERSION = "2.20";
+our $VERSION = "2.21";
 $VERSION = eval $VERSION;
 
 =head1 NAME
@@ -265,7 +265,7 @@ Pavel Shaydo, C<< <zwon at cpan.org> >>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2011-2013 Pavel Shaydo.
+Copyright 2011-2015 Pavel Shaydo.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published

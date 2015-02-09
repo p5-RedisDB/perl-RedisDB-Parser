@@ -1,7 +1,7 @@
 package RedisDB::Parser::XS;
 use strict;
 use warnings;
-our $VERSION = "2.20";
+our $VERSION = "2.21";
 my $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -43,7 +43,7 @@ Pavel Shaydo, C<< <zwon at cpan.org> >>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2011-2013 Pavel Shaydo.
+Copyright 2011-2015 Pavel Shaydo.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
