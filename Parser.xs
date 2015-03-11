@@ -46,7 +46,7 @@ rdb_parser_build_request(parser, ...)
                 pv  = SvPVutf8(tmp, len);
             }
             else {
-                pv = SvPV(ST(i), len);
+                pv = SvPVbyte(ST(i), len);
             }
             sv_catpvf(RETVAL, "$%ld\r\n", (long)len);
             sv_catpvn(RETVAL, pv, len);
