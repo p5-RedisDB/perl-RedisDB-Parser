@@ -2,6 +2,7 @@ use Test::Most 0.22;
 use Test::FailWarnings;
 use utf8;
 
+use Encode qw();
 use Try::Tiny;
 use RedisDB::Parser;
 use RedisDB::Parser::PP;
@@ -54,7 +55,6 @@ sub request_encoding {
     my $string  = "Short string for testing";
     my $ustring = "上得山多终遇虎";
 
-    use bytes;
     my $binary =
       "Some strings may contain\n linebreaks\0 \r\n or zero terminated strings\0 or some latin1 chars \110";
 
@@ -70,13 +70,12 @@ sub request_encoding {
         join( $lf, '*2', '$4', 'test', '$24', $string, '' ),
         "ASCII string"
     );
+    dies_ok { $parser->build_request( $command, $ustring, $string ) }
+    "wide characters are not allowed in request";
+
+    $ustring = Encode::encode_utf8($ustring);
     my $ulen = length $ustring;
     ok $ulen > 7, "Length is in bytes";
-    eq_or_diff(
-        $parser->build_request( $command, $ustring, $string ),
-        join( $lf, '*3', '$4', 'test', "\$$ulen", $ustring, '$24', $string, '' ),
-        "unicode string"
-    );
     my $blen = length $binary;
     eq_or_diff(
         $parser->build_request( $command, $binary, $ustring ),

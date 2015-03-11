@@ -20,10 +20,11 @@ sub binary_test {
     $parser->parse($exp);
     eq_or_diff $parsed, [ 'set', $binary ], "response parsed as octets";
 
-    # shouldn't it warn here to indicate that data is not encoded?
-    $req = $parser->build_request( 'set', $hi_utf );
+    dies_ok {
+        $req = $parser->build_request( 'set', $hi_utf );
+    }
+    "can't build request with wide characters";
     $exp = "*2$lf\$3${lf}set${lf}\$6$lf$hi_oct$lf";
-    is $req, $exp, "utf value encoded as octets";
     $parser->parse($exp);
     eq_or_diff $parsed, [ 'set', $hi_oct ], "response parsed as octets";
 };
