@@ -43,11 +43,15 @@ sub build_request {
     my $req = "*$nargs\015\012";
     if ( $self->{utf8} ) {
         $req .= '$' . length($_) . "\015\012" . $_ . "\015\012"
-          for map { Encode::encode( 'UTF-8', $_, Encode::FB_CROAK | Encode::LEAVE_SRC ) } @_;
+          for map {
+            Encode::encode( 'UTF-8', $_, Encode::FB_CROAK | Encode::LEAVE_SRC )
+          } @_;
     }
     else {
-        use bytes;
-        $req .= '$' . length($_) . "\015\012" . $_ . "\015\012" for @_;
+        for (@_) {
+            utf8::downgrade($_);
+            $req .= '$' . length($_) . "\015\012" . $_ . "\015\012";
+        }
     }
     return $req;
 }
