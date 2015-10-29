@@ -114,7 +114,8 @@ rdb_parser_parse(parser, data)
         SV* data;
     CODE:
         sv_catsv(parser->buffer, data);
-        while (sv_len(parser->buffer) && rdb_parser__parse_reply(parser));
-        RETVAL = 1;
+        RETVAL = 0;
+        while (sv_len(parser->buffer) && rdb_parser__parse_reply(parser))
+            RETVAL++;
     OUTPUT:
         RETVAL

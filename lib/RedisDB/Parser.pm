@@ -118,6 +118,8 @@ invoke callback, either the one from the queue that was added using
 I<push_callback> method, or default callback if the queue is empty. Callback
 passed two arguments: master value, and decoded reply from the server.
 
+Method returns the number of parsed replies.
+
 =cut
 
 =head1 PARSING
