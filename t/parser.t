@@ -98,25 +98,30 @@ sub one_line_reply {
     is $parser->callbacks, 5, "Five callbacks were added";
     $parser->parse("+");
     is @replies, 0, "+";
-    $parser->parse("OK");
+    is $parser->parse("OK"), 0, "parse returned 0";
     is @replies, 0, "+OK";
-    $parser->parse("\015");
+    is $parser->parse("\015"), 0, "parse returned 0";
     is @replies, 0, "+OK\\r";
-    $parser->parse("\012+And here we have something long$lf-ERR");
+    is $parser->parse("\012+And here we have something long$lf-ERR"), 2,
+      "parse returned 2";
     is @replies, 2, "Found 2 replies";
     is $parser->callbacks, 3, "Three callbacks left";
     eq_or_diff \@replies, [ "OK", "And here we have something long" ],
       "OK, And here we have something long";
     @replies = ();
-    $parser->parse(" error$lf-MOVED 7777 127.0.0.2:3333$lf-ASK 8888 127.0.0.2:4444$lf");
+    is $parser->parse(
+        " error$lf-MOVED 7777 127.0.0.2:3333$lf-ASK 8888 127.0.0.2:4444$lf"), 3,
+      "parse returned 3";
     is @replies, 3, "Got 3 replies";
     isa_ok $replies[0], "RedisDB::Parser::Error", "Got an error object";
     is $replies[0]{message}, 'ERR error', 'correct error message';
-    isa_ok $replies[1], "RedisDB::Parser::Error::MOVED", "Got an MOVED error object";
+    isa_ok $replies[1], "RedisDB::Parser::Error::MOVED",
+      "Got an MOVED error object";
     is $replies[1]{slot}, 7777,        'correct slot';
     is $replies[1]{host}, '127.0.0.2', 'correct host';
     is $replies[1]{port}, '3333',      'correct port';
-    isa_ok $replies[2], "RedisDB::Parser::Error::ASK", "Got an ASK error object";
+    isa_ok $replies[2], "RedisDB::Parser::Error::ASK",
+      "Got an ASK error object";
     is $replies[2]{slot}, 8888,        'correct slot';
     is $replies[2]{host}, '127.0.0.2', 'correct host';
     is $replies[2]{port}, '4444',      'correct port';
