@@ -1,4 +1,5 @@
 Changes
+INSTALL.SKIP
 lib/RedisDB/Parser.pm
 lib/RedisDB/Parser/Error.pm
 lib/RedisDB/Parser/PP.pm
